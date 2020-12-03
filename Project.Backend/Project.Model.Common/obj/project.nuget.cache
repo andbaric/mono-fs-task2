@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "NL/WVdYVJNMgI1swsXAB3EMbCrr4whljD0JKCa6YBBKEvSIXyMzmcy8I1BL+kl24zsGT5G0XIX6ujtBfBRmI8A==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\andjelo\\Data\\development\\task-projects\\mono-task\\mono-fs-task2\\Project.Backend\\Project.Model.Common\\Project.Model.Common.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\andjelo\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
+    "C:\\Users\\andjelo\\.nuget\\packages\\netstandard.library\\2.0.3\\netstandard.library.2.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
