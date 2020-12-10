@@ -19,7 +19,7 @@ namespace Project.DAL.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63)
                 .HasAnnotation("ProductVersion", "5.0.0");
 
-            modelBuilder.Entity("Project.DAL.Entities.VehicleMake", b =>
+            modelBuilder.Entity("Project.DAL.Entities.VehicleMakeEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -142,7 +142,7 @@ namespace Project.DAL.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Project.DAL.Entities.VehicleModel", b =>
+            modelBuilder.Entity("Project.DAL.Entities.VehicleModelEntity", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -420,9 +420,9 @@ namespace Project.DAL.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Project.DAL.Entities.VehicleModel", b =>
+            modelBuilder.Entity("Project.DAL.Entities.VehicleModelEntity", b =>
                 {
-                    b.HasOne("Project.DAL.Entities.VehicleMake", null)
+                    b.HasOne("Project.DAL.Entities.VehicleMakeEntity", null)
                         .WithMany()
                         .HasForeignKey("MakeId")
                         .OnDelete(DeleteBehavior.Cascade)
