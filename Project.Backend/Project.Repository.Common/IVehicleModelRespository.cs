@@ -1,6 +1,6 @@
 ﻿using Project.DAL.Entities;
-using Project.Model.DTOs.VehicleModel;
-using Project.Model.DTOs.VehicleModel.ReadVehicleModels;
+using Project.Model;
+using Project.Repository.Common.Generic;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -9,7 +9,9 @@ namespace Project.Repository.Common
 {
     public interface IVehicleModelRespository : IRepository<VehicleModelEntity>
     {
-        new Task<ReadVehicleModelResponse> GetById(Guid id);
-        new Task<IEnumerable<ReadVehicleModelsResponseItem>> GetAll(); 
+        Task<VehicleModel> ReadModelById(Guid id);
+        Task<IEnumerable<VehicleModel>> ReadModels();
+        Task<VehicleModel> UpdateModel(VehicleModel modelUpdates);
+        Task<VehicleModel> DeleteModelById(Guid id);
     }
 }

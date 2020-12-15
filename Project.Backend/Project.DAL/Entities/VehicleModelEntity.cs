@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Project.DAL.Entities
 {
     [Table("vehicle_model")]
-    public class VehicleModelEntity : EntityBase
+    public class VehicleModelEntity : EntityModel
     {
         [Required]
         public Guid MakeId { get; set; }
