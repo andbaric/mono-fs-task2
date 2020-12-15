@@ -1,12 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Project.DAL.Entities;
-using Project.Model.DTOs.VehicleMake;
-using Project.Model.DTOs.VehicleMake.ReadVehicleMakes;
+using Project.Model;
 using Project.Service.Common;
-using Project.WebAPI.Filters;
+using Project.WebAPI.Controllers.RestModels;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Project.WebAPI.Controllers
@@ -25,69 +24,70 @@ namespace Project.WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<CreateVehicleMakeResponse>> CreateMake(CreateVehicleMakeRequest request)
+        public async Task<ActionResult<ReadVehicleMake>> CreateMake(CreateParams makeToCreateParams)
         {
-            await service.CreateVehicleMake(request);
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            return Ok();
+            var makeToCreate = mapper.Map<VehicleMake>(makeToCreateParams);
+            var createdVehicleMake = await service.CreateVehicleMake(makeToCreate);
+            var createdVehicleMakeRestModel = mapper.Map<ReadVehicleMake>(createdVehicleMake);
+
+            return Created($"api/makes/{createdVehicleMakeRestModel.Id}", createdVehicleMakeRestModel);
         }
 
         [HttpGet("{id:guid}")]
-        public async Task<ActionResult<ReadVehicleMakeResponse>> GetMake(Guid id)
+        public async Task<ActionResult<ReadVehicleMake>> ReadMake(Guid id)
         {
-            var getMakeRequest = new ReadVehicleMakeRequest(){ Id = id };
-            var getMakeResponse = await service.ReadVehicleMake(getMakeRequest);
+            var vehicleMake = await service.ReadVehicleMake(id);
 
-            if (getMakeResponse == null) return NotFound();
+            if (vehicleMake == null) return NotFound("Vehicle make not found.");
 
-            return Ok(getMakeResponse);
+            var vehicleMakeRestModel = mapper.Map<ReadVehicleMake>(vehicleMake);
+
+            return Ok(vehicleMakeRestModel);
         }
 
         [HttpGet]
-        public async Task<ActionResult<ReadVehicleMakesResponse>> GetMakes()
+        public async Task<ActionResult<IEnumerable<ReadVehicleMake>>> ReadMakes()
         {
-            var getMakesRequest = new ReadVehicleMakesRequest();
-            var getMakesResponse = await service.ReadVehicleMakes(getMakesRequest);
+            var vehicleMakes = await service.ReadVehicleMakes();
+            var createdVehicleMakeRestModel = mapper.Map<List<ReadVehicleMake>>(vehicleMakes);
 
-            return Ok(getMakesResponse);
+            return Ok(createdVehicleMakeRestModel);
         }
 
         [HttpPatch("{id:guid}")]
-        public async Task<ActionResult<UpdateVehicleMakeResponse>> UpdateMake(Guid id, [FromBody] JsonPatchDocument<UpdateVehicleMakeRequest> makePatch)
+        public async Task<ActionResult<ReadVehicleMake>> UpdateMake(Guid id, [FromBody]JsonPatchDocument<VehicleMake> makeUpdatesPatch)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            if (!ModelState.IsValid) return BadRequest(ModelState);
             else
             {
                 try
                 {
-                    var getMakeRequest = new ReadVehicleMakeRequest() { Id = id };
-                    var makeToUpdate = await service.ReadVehicleMake(getMakeRequest);
+                    var makeToUpdate = await service.ReadVehicleMake(id);
 
-                    if (makeToUpdate == null) return NotFound();
+                    if (makeToUpdate == null) return NotFound("Vehicle make not found.");
 
-                    var makeToUpdateRequest = mapper.Map<UpdateVehicleMakeRequest>(makeToUpdate);
+                    makeUpdatesPatch.ApplyTo(makeToUpdate);
+                    var updatedMake = await service.UpdateVehicleMake(makeToUpdate);
+                    var updatedMakeRestModel = mapper.Map<ReadVehicleMake>(updatedMake);
 
-                    makePatch.ApplyTo(makeToUpdateRequest);
-                    await service.UpdateVehicleMake(makeToUpdateRequest);
+                    return Ok(updatedMakeRestModel);
                 }
                 catch (Exception ex) { return BadRequest(ex); }
             }
-
-            return Ok();
         }
 
         [HttpDelete("{id:guid}")]
-        public async Task<ActionResult<DeleteVehicleMakeResponse>> DeleteMake(Guid id)
+        public async Task<ActionResult<ReadVehicleMake>> DeleteMake(Guid id)
         {
-            var deleteMakeRequest = new DeleteVehicleMakeRequest() { Id = id };
-            var deleteMakeResponse = await service.DeleteVehicleMake(deleteMakeRequest);
+            var deletedVehicleMake = await service.DeleteVehicleMake(id);
 
-            if (deleteMakeResponse == null) return NotFound();
+            if (deletedVehicleMake == null) return NotFound("Vehicle make not found.");
 
-            return Ok();
+            var deletedVehicleMakeRestModel = mapper.Map<ReadVehicleMake>(deletedVehicleMake);
+
+            return Ok(deletedVehicleMakeRestModel);
         }
     }
 }

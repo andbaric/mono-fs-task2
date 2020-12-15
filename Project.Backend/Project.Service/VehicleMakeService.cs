@@ -1,9 +1,5 @@
-﻿using AutoMapper;
-using Project.DAL.Entities;
-using Project.Model.Common.DTOs.VehicleMake;
-using Project.Model.Common.DTOs.VehicleMake.ReadVehicleMakes;
-using Project.Model.DTOs.VehicleMake;
-using Project.Model.DTOs.VehicleMake.ReadVehicleMakes;
+﻿using Project.Model;
+using Project.Model;
 using Project.Repository.Common;
 using Project.Service.Common;
 using System;
@@ -15,53 +11,35 @@ namespace Project.Service
     public class VehicleMakeService : IVehicleMakeService
     {
         private readonly IVehicleMakeRespository repository;
-        private readonly IMapper mapper;
 
-        public VehicleMakeService(IVehicleMakeRespository repository, IMapper mapper)
+        public VehicleMakeService(IVehicleMakeRespository repository)
         {
             this.repository = repository;
-            this.mapper = mapper;
         }
 
-        public async Task<ICreateVehicleMakeResponse> CreateVehicleMake(ICreateVehicleMakeRequest request)
+        public async Task<VehicleMake> CreateVehicleMake(VehicleMake makeToCreate)
         {
-            var makeToCreateEntity = mapper.Map<VehicleMakeEntity>(request);
-            await repository.Create(makeToCreateEntity);
-
-            return null;
+            return await repository.CreateMake(makeToCreate);
         }
 
-        public async Task<IReadVehicleMakeResponse> ReadVehicleMake(IReadVehicleMakeRequest request)
+        public async Task<IEnumerable<VehicleMake>> ReadVehicleMakes()
         {
-            var makeToReadEntity = await repository.GetById(request.Id);
-            var readMakeResponse = mapper.Map<ReadVehicleMakeResponse>(makeToReadEntity);
-
-            return readMakeResponse;
+           return await repository.ReadMakes();
         }
 
-        public async Task<IReadVehicleMakesResponse> ReadVehicleMakes(IReadVehicleMakesRequest request)
+        public async Task<VehicleMake> ReadVehicleMake(Guid id)
         {
-            var makesToReadEntitieCollection = await repository.GetAll();
-            var readMakesResponse = mapper.Map<ReadVehicleMakesResponse>(makesToReadEntitieCollection);
-
-            return readMakesResponse;
+            return await repository.ReadMakeById(id);
         }
 
-        public async Task<IUpdateVehicleMakeResponse> UpdateVehicleMake(IUpdateVehicleMakeRequest request)
+        public async Task<VehicleMake> UpdateVehicleMake(VehicleMake updatedMake)
         {
-            var makeToUpdateEntity = mapper.Map<VehicleMakeEntity>(request);
-            await repository.Update(makeToUpdateEntity);
-
-            return null;
+            return await repository.UpdateMake(updatedMake);
         }
 
-        public async Task<IDeleteVehicleMakeResponse> DeleteVehicleMake(IDeleteVehicleMakeRequest request)
+        public async Task<VehicleMake> DeleteVehicleMake(Guid id)
         {
-
-            var deleteMakeRequest = await repository.DeleteById(request.Id);
-            var deleteMakeResponse = mapper.Map<DeleteVehicleMakeResponse>(deleteMakeRequest);
-
-            return deleteMakeResponse;
+            return await repository.DeleteMakeById(id);
         }
     }
 }

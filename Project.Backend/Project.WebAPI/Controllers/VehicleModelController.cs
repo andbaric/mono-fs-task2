@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Project.Model.DTOs.VehicleModel;
-using Project.Model.DTOs.VehicleModel.ReadVehicleModels;
+using Project.Model;
 using Project.Service.Common;
+using Project.WebAPI.Controllers.RestModels;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Project.WebAPI.Controllers
@@ -23,69 +24,77 @@ namespace Project.WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<CreateVehicleModelResponse>> CreateModel(CreateVehicleModelRequest request)
+        public async Task<ActionResult<VehicleModel>> CreateModel(VehicleModel modelToCreate)
         {
-            await service.CreateVehicleModel(request);
+            ModelState["Id"]?.Errors.Clear();
+            ModelState["Make.Id"]?.Errors.Clear();
 
-            return Ok();
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var createdVehicleModel = await service.CreateVehicleModel(modelToCreate);
+
+            if (createdVehicleModel == null) return BadRequest("Model already exists.");
+
+            var createdVehicleModelRestModel = mapper.Map<ReadVehicleModel>(createdVehicleModel);
+
+            return Created($"api/makes/{createdVehicleModelRestModel.Id}", createdVehicleModelRestModel);
+        }
+
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<VehicleModel>> GetModel(Guid id)
+        {
+            var vehicleModel = await service.ReadVehicleModel(id);
+
+            if (vehicleModel == null) return NotFound("Vehicle model not found.");
+
+            var vehicleModelRestModel = mapper.Map<ReadVehicleModel>(vehicleModel);
+
+            return Ok(vehicleModelRestModel);
         }
 
         [HttpGet]
-        public async Task<ActionResult<ReadVehicleModelsResponse>> GetModels()
+        public async Task<ActionResult<IEnumerable<VehicleModel>>> GetModels()
         {
-            var getModelsRequest = new ReadVehicleModelsRequest();
-            var getModelsResult = await service.ReadVehicleModels(getModelsRequest);
+            var vehicleModels = await service.ReadVehicleModels();
+            var vehicleModelsRestModel = mapper.Map<List<ReadVehicleModel>>(vehicleModels);
 
-            return Ok(getModelsResult);
-        }
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<ReadVehicleModelResponse>> GetModel(Guid id)
-        {
-            var getModelRequest = new ReadVehicleModelRequest() { Id = id };
-            var getModelResponse = await service.ReadVehicleModel(getModelRequest);
-
-            if (getModelResponse == null) return NotFound();
-
-            return Ok(getModelResponse);
+            return Ok(vehicleModelsRestModel);
         }
 
         [HttpPatch("{id:guid}")]
-        public async Task<ActionResult<UpdateVehicleModelResponse>> UpdateModel(Guid id, [FromBody] JsonPatchDocument<UpdateVehicleModelRequest> makePatch)
+        public async Task<ActionResult<VehicleModel>> UpdateModel(Guid id, 
+            [FromBody] JsonPatchDocument<VehicleModel> modelUpdatesPatch)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
             else
             {
                 try
                 {
-                    var getModelRequest = new ReadVehicleModelRequest() { Id = id };
-                    var makeToUpdate = await service.ReadVehicleModel(getModelRequest);
+                    var modelToUpdate = await service.ReadVehicleModel(id);
 
-                    if (makeToUpdate == null) return NotFound();
+                    if (modelToUpdate == null) return NotFound("Vehicle model not found.");
 
-                    var makeToUpdateRequest = mapper.Map<UpdateVehicleModelRequest>(makeToUpdate);
+                    modelUpdatesPatch.ApplyTo(modelToUpdate);
+                    var updatedModel = await service.UpdateVehicleModel(modelToUpdate);
+                    var updatedVehicleMakeRestModel = mapper.Map<ReadVehicleModel>(updatedModel);
 
-                    makePatch.ApplyTo(makeToUpdateRequest);
-                    await service.UpdateVehicleModel(makeToUpdateRequest);
+                    return Ok(updatedVehicleMakeRestModel);
                 }
                 catch (Exception ex) { return BadRequest(ex); }
             }
-
-            return Ok();
         }
 
         [HttpDelete("{id:guid}")]
-        public async Task<ActionResult<DeleteVehicleModelResponse>> DeleteModel(Guid id)
+        public async Task<ActionResult<VehicleModel>> DeleteModel(Guid id)
         {
-            var deleteModelRequest = new DeleteVehicleModelRequest() { Id = id };
-            var deleteModelResponse = await service.DeleteVehicleModel(deleteModelRequest);
+            var vehicleModelToDelete = await service.DeleteVehicleModel(id);
 
-            if (deleteModelResponse == null) return NotFound();
+            if (vehicleModelToDelete == null) return NotFound("Vehicle model not found.");
 
-            return Ok();
+            var deletedVehicleMakeRestModel = mapper.Map<ReadVehicleModel>(vehicleModelToDelete);
+
+            return Ok(deletedVehicleMakeRestModel);
         }
     }
 }

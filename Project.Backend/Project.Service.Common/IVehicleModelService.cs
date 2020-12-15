@@ -1,15 +1,16 @@
-﻿using Project.Model.Common.DTOs.VehicleModel;
-using Project.Model.Common.DTOs.VehicleModel.ReadVehicleModels;
+﻿using Project.Model;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Project.Service.Common
 {
     public interface IVehicleModelService
     {
-        Task<ICreateVehicleModelResponse> CreateVehicleModel(ICreateVehicleModelRequest request);
-        Task<IReadVehicleModelResponse> ReadVehicleModel(IReadVehicleModelRequest request);
-        Task<IReadVehicleModelsResponse> ReadVehicleModels(IReadVehicleModelsRequest request);
-        Task<IUpdateVehicleModelResponse> UpdateVehicleModel(IUpdateVehicleModelRequest request);
-        Task<IDeleteVehicleModelResponse> DeleteVehicleModel(IDeleteVehicleModelRequest request);
+        Task<VehicleModel> CreateVehicleModel(VehicleModel modelToCreate);
+        Task<VehicleModel> ReadVehicleModel(Guid id);
+        Task<IEnumerable<VehicleModel>> ReadVehicleModels();
+        Task<VehicleModel> UpdateVehicleModel(VehicleModel modelUpdates);
+        Task<VehicleModel> DeleteVehicleModel(Guid id);
     }
 }

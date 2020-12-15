@@ -1,16 +1,16 @@
-﻿using Project.Model.Common.DTOs.VehicleMake;
-using Project.Model.Common.DTOs.VehicleMake.ReadVehicleMakes;
+﻿using Project.Model;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Project.Service.Common
 {
     public interface IVehicleMakeService
     {
-        Task<ICreateVehicleMakeResponse> CreateVehicleMake(ICreateVehicleMakeRequest request);
-        Task<IReadVehicleMakeResponse> ReadVehicleMake(IReadVehicleMakeRequest request);
-        Task<IReadVehicleMakesResponse> ReadVehicleMakes(IReadVehicleMakesRequest request);
-        Task<IUpdateVehicleMakeResponse> UpdateVehicleMake(IUpdateVehicleMakeRequest request);
-        Task<IDeleteVehicleMakeResponse> DeleteVehicleMake(IDeleteVehicleMakeRequest request);
+        Task<VehicleMake> CreateVehicleMake(VehicleMake makeToCreate);
+        Task<IEnumerable<VehicleMake>> ReadVehicleMakes();
+        Task<VehicleMake> ReadVehicleMake(Guid id);
+        Task<VehicleMake> UpdateVehicleMake(VehicleMake makeUpdates);
+        Task<VehicleMake> DeleteVehicleMake(Guid id);
     }
 }

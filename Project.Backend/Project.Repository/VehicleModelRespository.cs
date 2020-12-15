@@ -1,55 +1,45 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Project.DAL;
 using Project.DAL.Entities;
-using Project.Model.DTOs.VehicleModel.ReadVehicleModels;
+using Project.Model;
 using Project.Repository.Common;
+using Project.Repository.Generic;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Project.Model.Common.DTOs.VehicleModel.ReadVehicleModels;
-using System;
-using Project.Model.DTOs.VehicleModel;
-using Project.Model.Common.DTOs.VehicleModel;
 
 namespace Project.Repository
 {
     public class VehicleModelRespository : Repository<VehicleModelEntity>, IVehicleModelRespository
     {
-        public VehicleModelRespository(VehicleDbContext context) : base(context)
+        private readonly IMapper mapper;
+
+        public VehicleModelRespository(VehicleDbContext dbContext, IMapper mapper) : base(dbContext)
         {
+            this.mapper = mapper;
         }
 
-        new public async Task<IEnumerable<ReadVehicleModelsResponseItem>> GetAll()
-        {
-            var modelCollection = await (
-                from model in dbSet
-                join make in dbContext.Set<VehicleMakeEntity>() on model.MakeId equals make.Id
-                select new ReadVehicleModelsResponseItem
-                {
-                    Id = model.Id,
-                    Name = model.Name,
-                    Abrv = model.Abrv,
-                    Make = new Model.DTOs.VehicleModel.ReadVehicleModels.VehicleMake() { Id = make.Id, Name = make.Name }
-                }).ToListAsync();
-
-            return modelCollection;
-        }
-
-        new public async Task<ReadVehicleModelResponse> GetById(Guid id)
+        public async Task<VehicleModel> ReadModelById(Guid id)
         {
             try
             {
-                var modelToRead= await(
+                var modelToRead = await(
                     from model in dbSet.Where(model => model.Id == id)
                     join make in dbContext.Set<VehicleMakeEntity>() on model.MakeId equals make.Id
-                    select new ReadVehicleModelResponse 
-                    { 
-                        Id = model.Id, 
-                        Name = model.Name, 
+                    select new VehicleModel
+                    {
+                        Id = model.Id,
+                        Name = model.Name,
                         Abrv = model.Abrv,
-                        Make = new Model.DTOs.VehicleModel.VehicleMake() { Id = make.Id, Name = make.Name }
-                    })
-                    .SingleOrDefaultAsync();
+                        Make = new VehicleMake
+                        {
+                            Id = make.Id,
+                            Name = make.Name,
+                            Abrv = make.Abrv
+                        }
+                    }).SingleOrDefaultAsync();
 
                 return modelToRead;
             }
@@ -57,6 +47,46 @@ namespace Project.Repository
             {
                 return null;
             }
+        }
+
+        public async Task<VehicleModel> UpdateModel(VehicleModel modelUpdates)
+        {
+            var modelEntityUpdates = mapper.Map<VehicleModelEntity>(modelUpdates);
+            var modelToUpdateEntity = await Update(modelEntityUpdates);
+            await SaveAsync();
+            var updatedModel = await ReadModelById(modelToUpdateEntity.Id);
+
+            return updatedModel;
+        }
+
+        public async Task<IEnumerable<VehicleModel>> ReadModels()
+        {
+            var modelsToRead = await(
+                from model in dbSet
+                join make in dbContext.Set<VehicleMakeEntity>() on model.MakeId equals make.Id
+                select new VehicleModel
+                {
+                    Id = model.Id,
+                    Name = model.Name,
+                    Abrv = model.Abrv,
+                    Make = new VehicleMake
+                    {
+                        Id = make.Id,
+                        Name = make.Name,
+                        Abrv = make.Abrv
+                    }
+                }).ToListAsync();
+
+            return modelsToRead;
+        }
+
+        public async Task<VehicleModel> DeleteModelById(Guid id)
+        { 
+            var deletedModel = await ReadModelById(id);
+            await DeleteById(id);
+            await SaveAsync();
+
+            return deletedModel;
         }
     }
 }

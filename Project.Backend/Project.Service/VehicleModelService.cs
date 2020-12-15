@@ -1,65 +1,47 @@
-﻿using AutoMapper;
-using Project.DAL.Entities;
-using Project.Model.Common.DTOs.VehicleModel;
-using Project.Model.Common.DTOs.VehicleModel.ReadVehicleModels;
-using Project.Model.DTOs.VehicleModel;
-using Project.Model.DTOs.VehicleModel.ReadVehicleModels;
+﻿using Project.Model;
 using Project.Repository.Common;
+using Project.Repository.Common.Generic;
 using Project.Service.Common;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Project.Service
 {
     public class VehicleModelService : IVehicleModelService
     {
+        public readonly IVehicleUnitOfWork unitOfWork;
         public readonly IVehicleModelRespository repository;
-        private readonly IMapper mapper;
 
-        public VehicleModelService(IVehicleModelRespository repository, IMapper mapper)
+        public VehicleModelService(IVehicleModelRespository repository, IVehicleUnitOfWork unitOfWork)
         {
             this.repository = repository;
-            this.mapper = mapper;
+            this.unitOfWork = unitOfWork;
         }
 
-        public async Task<ICreateVehicleModelResponse> CreateVehicleModel(ICreateVehicleModelRequest request)
+        public async Task<VehicleModel> CreateVehicleModel(VehicleModel modelToCreate)
         {
-            var makeToCreateEntity = mapper.Map<VehicleModelEntity>(request);
-            await repository.Create(makeToCreateEntity);
-
-            return null;
+            return await unitOfWork.CreateVehicleModel(modelToCreate);
         }
 
-        public async Task<IReadVehicleModelResponse> ReadVehicleModel(IReadVehicleModelRequest request)
+        public async Task<VehicleModel> ReadVehicleModel(Guid id)
         {
-            var modelToRead = await repository.GetById(request.Id);
-            var readMakeResponse = mapper.Map<ReadVehicleModelResponse>(modelToRead);
-
-            return readMakeResponse;
+            return await repository.ReadModelById(id);
         }
 
-        public async Task<IReadVehicleModelsResponse> ReadVehicleModels(IReadVehicleModelsRequest request)
+        public async Task<IEnumerable<VehicleModel>> ReadVehicleModels()
         {
-            var modelsToReadEntitieCollection = await repository.GetAll();
-            var readMakesResponse = mapper.Map<ReadVehicleModelsResponse>(modelsToReadEntitieCollection);
-
-            return readMakesResponse;
+            return await repository.ReadModels();
         }
 
-        public async Task<IUpdateVehicleModelResponse> UpdateVehicleModel(IUpdateVehicleModelRequest request)
+        public async Task<VehicleModel> UpdateVehicleModel(VehicleModel modelUpdates)
         {
-            var modelToUpdateEntity = mapper.Map<VehicleModelEntity>(request);
-            await repository.Update(modelToUpdateEntity);
-
-            return null;
+            return await repository.UpdateModel(modelUpdates);
         }
 
-        public async Task<IDeleteVehicleModelResponse> DeleteVehicleModel(IDeleteVehicleModelRequest request)
+        public async Task<VehicleModel> DeleteVehicleModel(Guid id)
         {
-            var deleteModelEntity = await repository.DeleteById(request.Id);
-            var deleteModelResponse = mapper.Map<DeleteVehicleModelResponse>(deleteModelEntity);
-
-            return deleteModelResponse;      
+            return await repository.DeleteModelById(id);
         }
     }
 }
