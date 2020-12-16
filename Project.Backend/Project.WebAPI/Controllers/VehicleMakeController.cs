@@ -51,9 +51,9 @@ namespace Project.WebAPI.Controllers
         public async Task<ActionResult<IEnumerable<ReadVehicleMake>>> ReadMakes()
         {
             var vehicleMakes = await service.ReadVehicleMakes();
-            var createdVehicleMakeRestModel = mapper.Map<List<ReadVehicleMake>>(vehicleMakes);
+            var vehicleMakesRestModel = mapper.Map<List<ReadVehicleMake>>(vehicleMakes);
 
-            return Ok(createdVehicleMakeRestModel);
+            return Ok(vehicleMakesRestModel);
         }
 
         [HttpPatch("{id:guid}")]
