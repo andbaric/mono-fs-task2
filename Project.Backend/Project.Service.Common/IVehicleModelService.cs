@@ -1,16 +1,19 @@
-﻿using Project.Model;
+﻿using Project.Common.Paging;
+using Project.Model.Common.VehicleModelResource;
+using Project.Model.Common.VehicleModelResource.Params;
+using Project.Model.VehicleMakeResource;
+using Project.Model.VehicleModelResource;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Project.Service.Common
 {
     public interface IVehicleModelService
     {
-        Task<VehicleModel> CreateVehicleModel(VehicleModel modelToCreate);
-        Task<VehicleModel> ReadVehicleModel(Guid id);
-        Task<IEnumerable<VehicleModel>> ReadVehicleModels();
-        Task<VehicleModel> UpdateVehicleModel(VehicleModel modelUpdates);
-        Task<VehicleModel> DeleteVehicleModel(Guid id);
+        Task<IVehicleModel<VehicleMake>> CreateVehicleModel(IVehicleModel<VehicleMake> modelToCreate);
+        Task<IVehicleModel<VehicleMake>> ReadVehicleModel(Guid id);
+        Task<IPagedList<VehicleModel>> ReadVehicleModels(IReadVehicleModelsParams readParams);
+        Task<IVehicleModel<VehicleMake>> UpdateVehicleModel(IVehicleModel<VehicleMake> modelUpdates);
+        Task<IVehicleModel<VehicleMake>> DeleteVehicleModel(Guid id);
     }
 }

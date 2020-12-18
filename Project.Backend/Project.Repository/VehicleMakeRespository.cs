@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
+using Project.Common.Paging;
 using Project.DAL;
 using Project.DAL.Entities;
-using Project.Model;
+using Project.Model.Common.VehicleMakeResource;
+using Project.Model.Common.VehicleMakeResource.Params;
+using Project.Model.VehicleMakeResource;
 using Project.Repository.Common;
-using Project.Repository.Common.Generic;
 using Project.Repository.Generic;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Project.Repository
@@ -20,7 +22,7 @@ namespace Project.Repository
             this.mapper = mapper;
         }
 
-        public async Task<VehicleMake> CreateMake(VehicleMake makeToCreate)
+        public async Task<VehicleMake> CreateMake(IVehicleMake makeToCreate)
         {
             var newMakeToCreateEntity = mapper.Map<VehicleMakeEntity>(makeToCreate);
             var makeToCreateEntity = await Create(newMakeToCreateEntity);
@@ -37,15 +39,40 @@ namespace Project.Repository
             return make;
         }
 
-        public async Task<IEnumerable<VehicleMake>> ReadMakes()
+        public async Task<PagedList<VehicleMake>> ReadVehicleMakes(IReadVehicleMakesParams readParams)
         {
-            var makesToReadEntities = await GetAll();
-            var makes = mapper.Map<List<VehicleMake>>(makesToReadEntities);
+            var vehicleMakesEntitiesQuery = dbSet.AsQueryable();
 
-            return makes;
+            var nameFilter = !string.IsNullOrWhiteSpace(readParams.Name) ? readParams.Name.Trim() : null; 
+            var abrvFilter = !string.IsNullOrWhiteSpace(readParams.Abrv) ? readParams.Abrv.Trim() : null;
+            if (nameFilter != null) vehicleMakesEntitiesQuery = 
+                    vehicleMakesEntitiesQuery.Where(n => n.Name == nameFilter);
+            if (abrvFilter != null) vehicleMakesEntitiesQuery = 
+                    vehicleMakesEntitiesQuery.Where(n => n.Abrv == abrvFilter);
+
+            var orderBy = !string.IsNullOrWhiteSpace(readParams.OrderBy) ? readParams.OrderBy.Trim().ToLowerInvariant() : null;
+            if (orderBy != null)
+            {
+                vehicleMakesEntitiesQuery = orderBy switch
+                {
+                    string value when value == "name" || value == "name_desc" => value == "name_desc" ?
+                                               vehicleMakesEntitiesQuery.OrderByDescending(s => s.Name)
+                                               : vehicleMakesEntitiesQuery.OrderBy(s => s.Name),
+                    string value when value == "abrv" || value == "abrv_desc" => value == "abrv_desc" ?
+                                                vehicleMakesEntitiesQuery.OrderByDescending(s => s.Abrv)
+                                                : vehicleMakesEntitiesQuery.OrderBy(s => s.Abrv),
+                    _ => vehicleMakesEntitiesQuery.OrderBy(s => s.Name),
+                };
+            } 
+            
+            var pagedVehicleMakesEntities = await PagedList<VehicleMakeEntity>
+                .CreateAsync(vehicleMakesEntitiesQuery, readParams.PageSize, readParams.PageNumber);
+            var pagedVehicleMakes = pagedVehicleMakesEntities.ToMappedPagedList<VehicleMakeEntity, VehicleMake>(mapper);
+
+            return pagedVehicleMakes;
         }
 
-        public async Task<VehicleMake> UpdateMake(VehicleMake makeUpdates)
+        public async Task<VehicleMake> UpdateMake(IVehicleMake makeUpdates)
         {
             var makeEntityUpdates = mapper.Map<VehicleMakeEntity>(makeUpdates);
             var makeToUpdateEntity = await Update(makeEntityUpdates);

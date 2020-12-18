@@ -1,11 +1,17 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
-using Project.Model;
+using Project.Common.Paging;
+using Project.Model.Common.VehicleMakeResource;
+using Project.Model.Common.VehicleModelResource;
+using Project.Model.VehicleMakeResource;
+using Project.Model.VehicleModelResource;
+using Project.Model.VehicleModelResoure.Params;
 using Project.Service.Common;
 using Project.WebAPI.Controllers.RestModels;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Project.WebAPI.Controllers
@@ -24,7 +30,7 @@ namespace Project.WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<VehicleModel>> CreateModel(VehicleModel modelToCreate)
+        public async Task<ActionResult<VehicleModel>> CreateModel(IVehicleModel<VehicleMake> modelToCreate)
         {
             ModelState["Id"]?.Errors.Clear();
             ModelState["Make.Id"]?.Errors.Clear();
@@ -53,17 +59,20 @@ namespace Project.WebAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<VehicleModel>>> GetModels()
+        public async Task<ActionResult<PagedList<VehicleModel>>> GetModels([FromQuery] ReadVehicleModelsParams readParams)
         {
-            var vehicleModels = await service.ReadVehicleModels();
-            var vehicleModelsRestModel = mapper.Map<List<ReadVehicleModel>>(vehicleModels);
+            var vehicleModels = await service.ReadVehicleModels(readParams);
+
+            if (!vehicleModels.Any()) return NotFound("Vehicle model not found.");
+
+            var vehicleModelsRestModel = vehicleModels.ToMappedPagedList<VehicleModel, ReadVehicleModel>(mapper);
 
             return Ok(vehicleModelsRestModel);
         }
 
         [HttpPatch("{id:guid}")]
         public async Task<ActionResult<VehicleModel>> UpdateModel(Guid id, 
-            [FromBody] JsonPatchDocument<VehicleModel> modelUpdatesPatch)
+            [FromBody] JsonPatchDocument<IVehicleModel<VehicleMake>> modelUpdatesPatch)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 

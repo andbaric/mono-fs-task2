@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Project.Model.Common
+namespace Project.Model.Common.VehicleMakeResource
 {
     public interface IVehicleMake
     {

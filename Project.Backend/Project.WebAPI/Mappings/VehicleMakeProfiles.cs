@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using Project.DAL.Entities;
+using Project.Model.VehicleMakeResource;
+using Project.Model.VehicleModelResource;
 using Project.WebAPI.Controllers.RestModels;
 
 namespace Project.Model.Profiles

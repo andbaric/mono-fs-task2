@@ -1,4 +1,4 @@
-﻿using Project.Model;
+﻿using Project.Model.VehicleMakeResource;
 using System;
 
 namespace Project.WebAPI.Controllers.RestModels

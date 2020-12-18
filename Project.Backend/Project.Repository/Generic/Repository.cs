@@ -22,7 +22,6 @@ namespace Project.Repository.Generic
 
         public async virtual Task<TEntity> Create(TEntity entityToCreate)
         {
-        /*    var createdEntity = mapper.Map<TEntity>(entityToCreate);*/
             await dbSet.AddAsync(entityToCreate);
 
             return entityToCreate;
