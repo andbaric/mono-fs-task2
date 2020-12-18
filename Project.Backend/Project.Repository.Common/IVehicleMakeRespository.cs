@@ -1,18 +1,20 @@
-﻿using Project.DAL.Entities;
-using Project.Model;
+﻿using Project.Common.Paging;
+using Project.DAL.Entities;
+using Project.Model.Common.VehicleMakeResource;
+using Project.Model.Common.VehicleMakeResource.Params;
+using Project.Model.VehicleMakeResource;
 using Project.Repository.Common.Generic;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Project.Repository.Common
 {
     public interface IVehicleMakeRespository : IRepository<VehicleMakeEntity>
     {
-        Task<VehicleMake> CreateMake(VehicleMake makeToCreate);
+        Task<VehicleMake> CreateMake(IVehicleMake makeToCreate);
         Task<VehicleMake> ReadMakeById(Guid id);
-        Task<IEnumerable<VehicleMake>> ReadMakes();
-        Task<VehicleMake> UpdateMake(VehicleMake makeUpdates);
+        Task<PagedList<VehicleMake>> ReadVehicleMakes(IReadVehicleMakesParams readParams);
+        Task<VehicleMake> UpdateMake(IVehicleMake makeUpdates);
         Task<VehicleMake> DeleteMakeById(Guid id);
     }
 }

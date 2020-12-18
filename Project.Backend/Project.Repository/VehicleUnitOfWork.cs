@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Project.DAL;
 using Project.DAL.Entities;
-using Project.Model;
+using Project.Model.Common.VehicleModelResource;
+using Project.Model.VehicleMakeResource;
+using Project.Model.VehicleModelResource;
 using Project.Repository.Common;
 using System.Threading.Tasks;
 
@@ -11,8 +13,8 @@ namespace Project.Repository
     {
         private readonly IMapper mapper;
 
-        private IVehicleMakeRespository vehicleMakeRespository;
-        private IVehicleModelRespository vehicleModelRespository;
+        private readonly IVehicleMakeRespository vehicleMakeRespository;
+        private readonly IVehicleModelRespository vehicleModelRespository;
 
         public VehicleUnitOfWork(VehicleDbContext DbContext,
             IVehicleMakeRespository vehicleMakeRespository, 
@@ -23,7 +25,7 @@ namespace Project.Repository
             this.vehicleModelRespository = vehicleModelRespository;
             this.mapper = mapper;
         }
-        public async Task<VehicleModel> CreateVehicleModel(VehicleModel modelToCreate)
+        public async Task<VehicleModel> CreateVehicleModel(IVehicleModel<VehicleMake> modelToCreate)
         {
             var modelExists = await vehicleModelRespository.ReadModelById(modelToCreate.Id) != null;
             if (modelExists) return null;

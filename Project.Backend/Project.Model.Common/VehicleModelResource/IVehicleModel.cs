@@ -1,6 +1,7 @@
-﻿using System;
+﻿using Project.Model.Common.VehicleMakeResource;
+using System;
 
-namespace Project.Model.Common
+namespace Project.Model.Common.VehicleModelResource
 {
     public interface IVehicleModel<TDependency> where TDependency : IVehicleMake
     {

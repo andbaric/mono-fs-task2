@@ -1,8 +1,9 @@
-﻿using Project.Model.Common;
-using System;
+﻿using Project.Model.Common.VehicleModelResource;
+using Project.Model.VehicleMakeResource;
 using System.ComponentModel.DataAnnotations;
+using System;
 
-namespace Project.Model
+namespace Project.Model.VehicleModelResource
 {
     public class VehicleModel : IVehicleModel<VehicleMake>
     {

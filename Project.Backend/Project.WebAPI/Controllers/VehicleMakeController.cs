@@ -1,11 +1,15 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Project.Common.Paging;
 using Project.Model;
+using Project.Model.Common.VehicleMakeResource;
+using Project.Model.VehicleMakeResource;
+using Project.Model.VehicleMakeResource.Params;
 using Project.Service.Common;
 using Project.WebAPI.Controllers.RestModels;
 using System;
-using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace Project.WebAPI.Controllers
@@ -48,16 +52,19 @@ namespace Project.WebAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ReadVehicleMake>>> ReadMakes()
+        public async Task<ActionResult<PagedList<VehicleMake>>> ReadMakes([FromQuery] ReadVehicleMakesParams readParams)
         {
-            var vehicleMakes = await service.ReadVehicleMakes();
-            var vehicleMakesRestModel = mapper.Map<List<ReadVehicleMake>>(vehicleMakes);
+            var vehicleMakes = await service.ReadVehicleMakes(readParams);
+
+            if (!vehicleMakes.Any()) return NotFound("Vehicle make not found.");
+
+            var vehicleMakesRestModel = vehicleMakes.ToMappedPagedList<VehicleMake, ReadVehicleMake>(mapper);
 
             return Ok(vehicleMakesRestModel);
         }
 
         [HttpPatch("{id:guid}")]
-        public async Task<ActionResult<ReadVehicleMake>> UpdateMake(Guid id, [FromBody]JsonPatchDocument<VehicleMake> makeUpdatesPatch)
+        public async Task<ActionResult<ReadVehicleMake>> UpdateMake(Guid id, [FromBody] JsonPatchDocument<IVehicleMake> makeUpdatesPatch)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             else

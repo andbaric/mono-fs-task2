@@ -1,9 +1,12 @@
-﻿using Project.Model;
+﻿using Project.Common.Paging;
+using Project.Model.Common.VehicleMakeResource;
+using Project.Model.Common.VehicleModelResource;
+using Project.Model.Common.VehicleModelResource.Params;
+using Project.Model.VehicleMakeResource;
+using Project.Model.VehicleModelResource;
 using Project.Repository.Common;
-using Project.Repository.Common.Generic;
 using Project.Service.Common;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Project.Service
@@ -13,33 +16,33 @@ namespace Project.Service
         public readonly IVehicleUnitOfWork unitOfWork;
         public readonly IVehicleModelRespository repository;
 
-        public VehicleModelService(IVehicleModelRespository repository, IVehicleUnitOfWork unitOfWork)
+        public VehicleModelService(IVehicleUnitOfWork unitOfWork, IVehicleModelRespository repository)
         {
-            this.repository = repository;
             this.unitOfWork = unitOfWork;
+            this.repository = repository;
         }
 
-        public async Task<VehicleModel> CreateVehicleModel(VehicleModel modelToCreate)
+        public async Task<IVehicleModel<VehicleMake>> CreateVehicleModel(IVehicleModel<VehicleMake> modelToCreate)
         {
             return await unitOfWork.CreateVehicleModel(modelToCreate);
         }
 
-        public async Task<VehicleModel> ReadVehicleModel(Guid id)
+        public async Task<IVehicleModel<VehicleMake>> ReadVehicleModel(Guid id)
         {
             return await repository.ReadModelById(id);
         }
 
-        public async Task<IEnumerable<VehicleModel>> ReadVehicleModels()
+        public async Task<IPagedList<VehicleModel>> ReadVehicleModels(IReadVehicleModelsParams readParams)
         {
-            return await repository.ReadModels();
+            return await repository.ReadVehicleModels(readParams);
         }
 
-        public async Task<VehicleModel> UpdateVehicleModel(VehicleModel modelUpdates)
+        public async Task<IVehicleModel<VehicleMake>> UpdateVehicleModel(IVehicleModel<VehicleMake> modelUpdates)
         {
             return await repository.UpdateModel(modelUpdates);
         }
 
-        public async Task<VehicleModel> DeleteVehicleModel(Guid id)
+        public async Task<IVehicleModel<VehicleMake>> DeleteVehicleModel(Guid id)
         {
             return await repository.DeleteModelById(id);
         }

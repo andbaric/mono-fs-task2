@@ -1,9 +1,10 @@
-﻿using Project.Model;
-using Project.Model;
+﻿using Project.Common.Paging;
+using Project.Model.Common.VehicleMakeResource;
+using Project.Model.Common.VehicleMakeResource.Params;
+using Project.Model.VehicleMakeResource;
 using Project.Repository.Common;
 using Project.Service.Common;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Project.Service
@@ -17,27 +18,26 @@ namespace Project.Service
             this.repository = repository;
         }
 
-        public async Task<VehicleMake> CreateVehicleMake(VehicleMake makeToCreate)
+        public async Task<IVehicleMake> CreateVehicleMake(IVehicleMake makeToCreate)
         {
             return await repository.CreateMake(makeToCreate);
         }
 
-        public async Task<IEnumerable<VehicleMake>> ReadVehicleMakes()
+        public async Task<IPagedList<VehicleMake>> ReadVehicleMakes(IReadVehicleMakesParams readParams)
         {
-           return await repository.ReadMakes();
+            return await repository.ReadVehicleMakes(readParams);
         }
-
-        public async Task<VehicleMake> ReadVehicleMake(Guid id)
+        public async Task<IVehicleMake> ReadVehicleMake(Guid id)
         {
             return await repository.ReadMakeById(id);
         }
 
-        public async Task<VehicleMake> UpdateVehicleMake(VehicleMake updatedMake)
+        public async Task<IVehicleMake> UpdateVehicleMake(IVehicleMake updatedMake)
         {
             return await repository.UpdateMake(updatedMake);
         }
 
-        public async Task<VehicleMake> DeleteVehicleMake(Guid id)
+        public async Task<IVehicleMake> DeleteVehicleMake(Guid id)
         {
             return await repository.DeleteMakeById(id);
         }
